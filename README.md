@@ -93,7 +93,7 @@ The architecture includes source-specific pipelines for:
 ## Solution Structure
 
 ``` text
-AutomotiveIntelligence.sln
+AutomotiveIntelligence.slnx
 ├── AutomotiveIntelligence.Web
 ├── AutomotiveIntelligence.Api
 ├── AutomotiveIntelligence.Domain
