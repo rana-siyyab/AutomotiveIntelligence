@@ -1,0 +1,978 @@
+﻿@model AutomotiveIntelligence.Web.Models.MarketIntelligence.MarketIntelligenceViewModel
+
+@{
+    ViewData["Title"] = "Market Intelligence";
+
+    var overview = Model.Overview;
+
+    var hasMarketData =
+        overview.TotalMarketRecords > 0;
+
+    var topModels = Model.ByModel
+        .OrderByDescending(x => x.RecordCount)
+        .Take(10)
+        .ToList();
+
+    var topCities = Model.ByCity
+        .OrderByDescending(x => x.RecordCount)
+        .Take(10)
+        .ToList();
+
+    var makeDistribution = Model.ByMake
+        .OrderByDescending(x => x.RecordCount)
+        .ToList();
+
+    var yearDistribution = Model.ByYear
+        .OrderBy(x => x.Year)
+        .ToList();
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/market-intelligence.css"
+          asp-append-version="true" />
+}
+
+<div class="market-intelligence-page">
+
+    <!-- =====================================================
+         HERO
+         ===================================================== -->
+
+    <section class="market-intelligence-hero">
+
+        <div>
+
+            <div class="market-eyebrow">
+                MARKET INTELLIGENCE
+            </div>
+
+            <h1>
+                Pakistan Used Car Market
+            </h1>
+
+            <p>
+                Explore market prices, vehicle distribution,
+                city-level pricing and historical observations
+                across the available development dataset.
+            </p>
+
+        </div>
+
+        <div class="market-status">
+
+            <span class="market-status-dot"></span>
+
+            <div>
+
+                <strong>
+                    Market Data
+                </strong>
+
+                <span>
+                    @(hasMarketData
+                        ? "Data Available"
+                        : "No Data")
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    @if (!hasMarketData)
+    {
+        <!-- =================================================
+             EMPTY STATE
+             ================================================= -->
+
+        <div class="market-empty-state">
+
+            <div class="empty-icon">
+                i
+            </div>
+
+            <div>
+
+                <strong>
+                    No market data available
+                </strong>
+
+                <p>
+                    Market intelligence will appear here
+                    once market price observations are available.
+                </p>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <!-- =================================================
+             KPI CARDS
+             ================================================= -->
+
+        <section class="market-stat-grid">
+
+            <div class="market-stat-card">
+
+                <span class="stat-label">
+                    MARKET RECORDS
+                </span>
+
+                <strong>
+                    @overview.TotalMarketRecords.ToString("N0")
+                </strong>
+
+                <span class="stat-description">
+                    Price observations
+                </span>
+
+            </div>
+
+
+            <div class="market-stat-card">
+
+                <span class="stat-label">
+                    AVERAGE MARKET PRICE
+                </span>
+
+                <strong>
+                    @((overview.AverageMarketPrice / 1000000m).ToString("0.00"))M
+                </strong>
+
+                <span class="stat-description">
+                    Average observed price
+                </span>
+
+            </div>
+
+
+            <div class="market-stat-card">
+
+                <span class="stat-label">
+                    LATEST MARKET PRICE
+                </span>
+
+                <strong>
+                    @((overview.LatestAverageMarketPrice / 1000000m).ToString("0.00"))M
+                </strong>
+
+                <span class="stat-description">
+                    Latest observation
+                </span>
+
+            </div>
+
+
+            <div class="market-stat-card">
+
+                <span class="stat-label">
+                    MARKET COVERAGE
+                </span>
+
+                <strong>
+                    @overview.TotalMakes
+                    <small>makes</small>
+                </strong>
+
+                <span class="stat-description">
+                    @overview.TotalModels models ·
+                    @overview.TotalCities cities
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             DATA NOTICE
+             ================================================= -->
+
+        <section class="market-data-notice">
+
+            <div class="notice-icon">
+                i
+            </div>
+
+            <div>
+
+                <strong>
+                    Development Market Dataset
+                </strong>
+
+                <p>
+                    The current development database contains
+                    @overview.TotalMarketRecords market observations.
+                    As additional vehicle listings and market sources
+                    are imported, these intelligence views will become
+                    broader and more representative.
+                </p>
+
+            </div>
+
+            @if (overview.LatestObservationDate.HasValue)
+            {
+                <div class="last-observation">
+
+                    <span>
+                        LATEST OBSERVATION
+                    </span>
+
+                    <strong>
+                        @overview.LatestObservationDate.Value.ToString("dd MMM yyyy")
+                    </strong>
+
+                </div>
+            }
+
+        </section>
+
+
+        <!-- =================================================
+             PRICE TREND + PRICE RANGE
+             ================================================= -->
+
+        <section class="market-main-grid">
+
+            <!-- Price Trend -->
+
+            <div class="market-card trend-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            PRICE MOVEMENT
+                        </span>
+
+                        <h2>
+                            Market Price Trend
+                        </h2>
+
+                        <p>
+                            Average observed price over the latest
+                            available 30-day period.
+                        </p>
+
+                    </div>
+
+                    <span class="market-card-badge">
+                        30 DAYS
+                    </span>
+
+                </div>
+
+
+                @if (Model.PriceTrends.Count == 0)
+                {
+                    <div class="card-empty">
+                        No trend data available.
+                    </div>
+                }
+                else
+                {
+                    <div id="marketTrendData"
+                         class="market-trend-data">
+
+                        @foreach (var trend in Model.PriceTrends)
+                        {
+                            <div class="market-trend-point"
+                                 data-date="@trend.Date.ToString("yyyy-MM-dd")"
+                                 data-price="@trend.AveragePrice"
+                                 data-min="@trend.MinimumPrice"
+                                 data-max="@trend.MaximumPrice">
+                            </div>
+                        }
+
+                    </div>
+
+                    <div class="market-chart-container">
+
+                        <canvas id="marketPriceChart"></canvas>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- Overall Range -->
+
+            <div class="market-card range-summary-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            PRICE DISTRIBUTION
+                        </span>
+
+                        <h2>
+                            Observed Market Range
+                        </h2>
+
+                        <p>
+                            Distribution of observed asking prices.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="market-range-summary">
+
+                    <div>
+
+                        <span>
+                            Minimum
+                        </span>
+
+                        <strong>
+                            @((overview.MinimumMarketPrice / 1000000m).ToString("0.00"))M
+                        </strong>
+
+                        <small>
+                            PKR
+                        </small>
+
+                    </div>
+
+
+                    <div class="range-summary-center">
+
+                        <span>
+                            Average
+                        </span>
+
+                        <strong>
+                            @((overview.AverageMarketPrice / 1000000m).ToString("0.00"))M
+                        </strong>
+
+                        <small>
+                            PKR
+                        </small>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Maximum
+                        </span>
+
+                        <strong>
+                            @((overview.MaximumMarketPrice / 1000000m).ToString("0.00"))M
+                        </strong>
+
+                        <small>
+                            PKR
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="range-summary-bar">
+                    <span></span>
+                </div>
+
+
+                <p class="range-summary-note">
+                    This represents observed market prices in the
+                    current dataset. It is not itself a recommended
+                    valuation range.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MARKET DISTRIBUTION
+             ================================================= -->
+
+        <section class="market-distribution-grid">
+
+            <!-- Make -->
+
+            <div class="market-card distribution-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET DISTRIBUTION
+                        </span>
+
+                        <h2>
+                            By Make
+                        </h2>
+
+                        <p>
+                            Number of market observations by make.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                @if (makeDistribution.Count == 0)
+                {
+                    <div class="card-empty">
+                        No make data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="distribution-chart-container">
+
+                        <canvas id="marketMakeChart"></canvas>
+
+                    </div>
+
+                    <div id="marketMakeData"
+                         class="market-distribution-data">
+
+                        @foreach (var make in makeDistribution)
+                        {
+                            <span class="market-make-point"
+                                  data-name="@make.MakeName"
+                                  data-count="@make.RecordCount">
+                            </span>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- Models -->
+
+            <div class="market-card distribution-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET DISTRIBUTION
+                        </span>
+
+                        <h2>
+                            Top Models
+                        </h2>
+
+                        <p>
+                            Models with the highest number of observations.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                @if (topModels.Count == 0)
+                {
+                    <div class="card-empty">
+                        No model data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="distribution-chart-container">
+
+                        <canvas id="marketModelChart"></canvas>
+
+                    </div>
+
+                    <div id="marketModelData"
+                         class="market-distribution-data">
+
+                        @foreach (var s in topModels)
+                        {
+                            <span class="market-model-point"
+                                  data-name="@s.ModelName"
+                                  data-count="@s.RecordCount">
+                            </span>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- City -->
+
+            <div class="market-card distribution-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET DISTRIBUTION
+                        </span>
+
+                        <h2>
+                            By City
+                        </h2>
+
+                        <p>
+                            Market observations across cities.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                @if (topCities.Count == 0)
+                {
+                    <div class="card-empty">
+                        No city data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="distribution-chart-container">
+
+                        <canvas id="marketCityChart"></canvas>
+
+                    </div>
+
+                    <div id="marketCityData"
+                         class="market-distribution-data">
+
+                        @foreach (var city in topCities)
+                        {
+                            <span class="market-city-point"
+                                  data-name="@city.CityName"
+                                  data-count="@city.RecordCount">
+                            </span>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             MAKE / MODEL TABLES
+             ================================================= -->
+
+        <section class="market-two-column">
+
+            <!-- Makes -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET BY MAKE
+                        </span>
+
+                        <h2>
+                            Makes
+                        </h2>
+
+                    </div>
+
+                    <span class="market-card-badge">
+                        @Model.ByMake.Count
+                    </span>
+
+                </div>
+
+
+                @if (Model.ByMake.Count == 0)
+                {
+                    <div class="card-empty">
+                        No make data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="market-table-wrapper">
+
+                        <table class="market-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Make</th>
+                                    <th>Records</th>
+                                    <th>Average</th>
+                                    <th>Range</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var make in Model.ByMake)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                @make.MakeName
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            @make.RecordCount.ToString("N0")
+                                        </td>
+
+                                        <td>
+                                            @((make.AveragePrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                        <td>
+                                            @((make.MinimumPrice / 1000000m).ToString("0.00"))M
+                                            –
+                                            @((make.MaximumPrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- Models -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET BY MODEL
+                        </span>
+
+                        <h2>
+                            Models
+                        </h2>
+
+                    </div>
+
+                    <span class="market-card-badge">
+                        @Model.ByModel.Count
+                    </span>
+
+                </div>
+
+
+                @if (Model.ByModel.Count == 0)
+                {
+                    <div class="card-empty">
+                        No model data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="market-table-wrapper">
+
+                        <table class="market-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Make</th>
+                                    <th>Records</th>
+                                    <th>Average</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var vehicleModel in Model.ByModel)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                @vehicleModel.ModelName
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            @vehicleModel.MakeName
+                                        </td>
+
+                                        <td>
+                                            @vehicleModel.RecordCount.ToString("N0")
+                                        </td>
+
+                                        <td>
+                                            @((vehicleModel.AveragePrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CITY / YEAR
+             ================================================= -->
+
+        <section class="market-two-column">
+
+            <!-- City -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET BY CITY
+                        </span>
+
+                        <h2>
+                            City Distribution
+                        </h2>
+
+                    </div>
+
+                    <span class="market-card-badge">
+                        @Model.ByCity.Count
+                    </span>
+
+                </div>
+
+
+                @if (Model.ByCity.Count == 0)
+                {
+                    <div class="card-empty">
+                        No city data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="market-table-wrapper">
+
+                        <table class="market-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>City</th>
+                                    <th>Records</th>
+                                    <th>Average</th>
+                                    <th>Range</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var city in Model.ByCity)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                @city.CityName
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            @city.RecordCount.ToString("N0")
+                                        </td>
+
+                                        <td>
+                                            @((city.AveragePrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                        <td>
+                                            @((city.MinimumPrice / 1000000m).ToString("0.00"))M
+                                            –
+                                            @((city.MaximumPrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- Year -->
+
+            <div class="market-card">
+
+                <div class="market-card-header">
+
+                    <div>
+
+                        <span class="market-card-eyebrow">
+                            MARKET BY YEAR
+                        </span>
+
+                        <h2>
+                            Model Years
+                        </h2>
+
+                    </div>
+
+                    <span class="market-card-badge">
+                        @Model.ByYear.Count
+                    </span>
+
+                </div>
+
+
+                @if (Model.ByYear.Count == 0)
+                {
+                    <div class="card-empty">
+                        No year data available.
+                    </div>
+                }
+                else
+                {
+                    <div class="market-table-wrapper">
+
+                        <table class="market-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Year</th>
+                                    <th>Records</th>
+                                    <th>Average</th>
+                                    <th>Range</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var year in Model.ByYear)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                @year.Year
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            @year.RecordCount.ToString("N0")
+                                        </td>
+
+                                        <td>
+                                            @((year.AveragePrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                        <td>
+                                            @((year.MinimumPrice / 1000000m).ToString("0.00"))M
+                                            –
+                                            @((year.MaximumPrice / 1000000m).ToString("0.00"))M
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INTELLIGENCE ROADMAP
+             ================================================= -->
+
+        <section class="market-future-card">
+
+            <div class="future-icon">
+                AI
+            </div>
+
+            <div>
+
+                <span>
+                    INTELLIGENCE ROADMAP
+                </span>
+
+                <h2>
+                    From Market Data to Automotive Intelligence
+                </h2>
+
+                <p>
+                    This market layer provides the foundation for
+                    pricing trends, demand analysis, depreciation
+                    insights and the future machine-learning
+                    valuation engine.
+                </p>
+
+            </div>
+
+        </section>
+
+    }
+
+</div>
+
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+    <script src="~/js/market-intelligence.js"
+            asp-append-version="true"></script>
+}

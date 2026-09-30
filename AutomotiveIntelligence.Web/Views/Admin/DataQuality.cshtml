@@ -1,0 +1,503 @@
+﻿@model AutomotiveIntelligence.Web.Models.DataQualityViewModel
+@using AutomotiveIntelligence.Web.Models
+
+@{
+    var sourceQuality =
+        ViewBag.SourceQuality
+        as IReadOnlyList<DataQualityBySourceViewModel>
+        ?? [];
+}
+@{
+    ViewData["Title"] = "Data Quality";
+
+    var qualityScore =
+        Math.Max(
+            0,
+            100m - Model.RejectionRate - Model.DuplicateRate);
+
+    var qualityClass =
+        qualityScore >= 95 ? "quality-good" :
+        qualityScore >= 80 ? "quality-warning" :
+        "quality-danger";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-data-quality.css"
+      asp-append-version="true" />
+
+<div class="data-quality-page">
+
+    <section class="dq-hero">
+
+        <div>
+            <div class="dq-eyebrow">
+                ADMINISTRATION
+            </div>
+
+            <h1>Data Quality</h1>
+
+            <p>
+                Monitor imported automotive data, validation results,
+                duplicate records and overall ingestion quality.
+            </p>
+        </div>
+
+        <div class="dq-hero-action">
+            <a asp-controller="Admin"
+               asp-action="DataImport"
+               class="dq-button">
+                + New Import
+            </a>
+        </div>
+
+    </section>
+
+
+    <!-- Summary Cards -->
+
+    <section class="dq-summary-grid">
+
+        <div class="dq-card">
+
+            <div class="dq-card-label">
+                Total Records
+            </div>
+
+            <div class="dq-card-value">
+                @Model.TotalRecordsProcessed.ToString("N0")
+            </div>
+
+            <div class="dq-card-subtitle">
+                Records processed
+            </div>
+
+        </div>
+
+
+        <div class="dq-card">
+
+            <div class="dq-card-label">
+                Inserted
+            </div>
+
+            <div class="dq-card-value">
+                @Model.TotalRecordsInserted.ToString("N0")
+            </div>
+
+            <div class="dq-card-subtitle">
+                Successfully imported
+            </div>
+
+        </div>
+
+
+        <div class="dq-card">
+
+            <div class="dq-card-label">
+                Rejected
+            </div>
+
+            <div class="dq-card-value">
+                @Model.TotalRecordsRejected.ToString("N0")
+            </div>
+
+            <div class="dq-card-subtitle">
+                Validation failures
+            </div>
+
+        </div>
+
+
+        <div class="dq-card">
+
+            <div class="dq-card-label">
+                Duplicated
+            </div>
+
+            <div class="dq-card-value">
+                @Model.TotalRecordsDuplicated.ToString("N0")
+            </div>
+
+            <div class="dq-card-subtitle">
+                Duplicate records detected
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Quality Overview -->
+
+    <section class="dq-main-grid">
+
+        <div class="dq-panel">
+
+            <div class="dq-panel-header">
+
+                <div>
+                    <div class="dq-panel-eyebrow">
+                        QUALITY OVERVIEW
+                    </div>
+
+                    <h2>Import Quality</h2>
+                </div>
+
+                <div class="dq-quality-score @qualityClass">
+                    @qualityScore.ToString("0.##")%
+                </div>
+
+            </div>
+
+
+            <div class="dq-quality-bar">
+
+                <div class="dq-quality-fill @qualityClass"
+                     style="width:@qualityScore%"></div>
+
+            </div>
+
+
+            <div class="dq-quality-metrics">
+
+                <div class="dq-metric">
+
+                    <span>
+                        Rejection Rate
+                    </span>
+
+                    <strong>
+                        @Model.RejectionRate.ToString("0.##")%
+                    </strong>
+
+                </div>
+
+
+                <div class="dq-metric">
+
+                    <span>
+                        Duplicate Rate
+                    </span>
+
+                    <strong>
+                        @Model.DuplicateRate.ToString("0.##")%
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Import Statistics -->
+
+        <div class="dq-panel">
+
+            <div class="dq-panel-header">
+
+                <div>
+                    <div class="dq-panel-eyebrow">
+                        IMPORT ACTIVITY
+                    </div>
+
+                    <h2>Import Statistics</h2>
+                </div>
+
+            </div>
+
+
+            <div class="dq-stat-list">
+
+                <div class="dq-stat-row">
+
+                    <span>Total Imports</span>
+
+                    <strong>
+                        @Model.TotalImports.ToString("N0")
+                    </strong>
+
+                </div>
+
+
+                <div class="dq-stat-row">
+
+                    <span>Successful Imports</span>
+
+                    <strong>
+                        @Model.SuccessfulImports.ToString("N0")
+                    </strong>
+
+                </div>
+
+
+                <div class="dq-stat-row">
+
+                    <span>Imports With Errors</span>
+
+                    <strong>
+                        @Model.ImportsWithErrors.ToString("N0")
+                    </strong>
+
+                </div>
+
+
+                <div class="dq-stat-row">
+
+                    <span>Last Import</span>
+
+                    <strong>
+
+                        @if (Model.LastImportDate.HasValue)
+{
+    var lastImportDate = Model.LastImportDate.Value.ToLocalTime();
+
+    <span>
+        @lastImportDate.ToString("dd MMM yyyy, HH:mm")
+    </span>
+}
+else
+{
+    <span>Never</span>
+}
+
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Record Distribution -->
+
+    <section class="dq-panel dq-distribution-panel">
+
+        <div class="dq-panel-header">
+
+            <div>
+                <div class="dq-panel-eyebrow">
+                    RECORD DISTRIBUTION
+                </div>
+
+                <h2>Processing Breakdown</h2>
+            </div>
+
+        </div>
+
+
+        <div class="dq-breakdown">
+
+            <div class="dq-breakdown-item">
+
+                <div class="dq-breakdown-top">
+
+                    <span>Inserted</span>
+
+                    <strong>
+                        @Model.TotalRecordsInserted.ToString("N0")
+                    </strong>
+
+                </div>
+
+                @{
+                    var insertedWidth =
+                        Model.TotalRecordsProcessed > 0
+                            ? Model.TotalRecordsInserted * 100m /
+                              Model.TotalRecordsProcessed
+                            : 0;
+                }
+
+                <div class="dq-breakdown-bar">
+
+                    <div class="dq-breakdown-fill"
+                         style="width:@insertedWidth%"></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dq-breakdown-item">
+
+                <div class="dq-breakdown-top">
+
+                    <span>Rejected</span>
+
+                    <strong>
+                        @Model.TotalRecordsRejected.ToString("N0")
+                    </strong>
+
+                </div>
+
+                @{
+                    var rejectedWidth =
+                        Model.TotalRecordsProcessed > 0
+                            ? Model.TotalRecordsRejected * 100m /
+                              Model.TotalRecordsProcessed
+                            : 0;
+                }
+
+                <div class="dq-breakdown-bar">
+
+                    <div class="dq-breakdown-fill"
+                         style="width:@rejectedWidth%"></div>
+
+                </div>
+
+            </div>
+
+
+            <div class="dq-breakdown-item">
+
+                <div class="dq-breakdown-top">
+
+                    <span>Duplicated</span>
+
+                    <strong>
+                        @Model.TotalRecordsDuplicated.ToString("N0")
+                    </strong>
+
+                </div>
+
+                @{
+                    var duplicateWidth =
+                        Model.TotalRecordsProcessed > 0
+                            ? Model.TotalRecordsDuplicated * 100m /
+                              Model.TotalRecordsProcessed
+                            : 0;
+                }
+
+                <div class="dq-breakdown-bar">
+
+                    <div class="dq-breakdown-fill"
+                         style="width:@duplicateWidth%"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+    <section class="dq-panel dq-source-panel">
+
+    <div class="dq-panel-header">
+
+        <div>
+            <div class="dq-panel-eyebrow">
+                SOURCE QUALITY
+            </div>
+
+            <h2>Data Quality by Source</h2>
+        </div>
+
+    </div>
+
+    @if (sourceQuality.Count == 0)
+    {
+        <div class="dq-empty-state">
+            No source quality data is available yet.
+        </div>
+    }
+    else
+    {
+        <div class="dq-source-table-wrapper">
+
+            <table class="dq-source-table">
+
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Imports</th>
+                        <th>Processed</th>
+                        <th>Inserted</th>
+                        <th>Rejected</th>
+                        <th>Duplicated</th>
+                        <th>Rejected %</th>
+                        <th>Duplicate %</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var source in sourceQuality)
+                    {
+                        <tr>
+
+                            <td>
+                                <div class="dq-source-name">
+                                    @source.SourceName
+                                </div>
+
+                                <div class="dq-source-type">
+                                    @source.SourceType
+                                </div>
+                            </td>
+
+                            <td>
+                                @source.TotalImports.ToString("N0")
+                            </td>
+
+                            <td>
+                                @source.RecordsProcessed.ToString("N0")
+                            </td>
+
+                            <td>
+                                @source.RecordsInserted.ToString("N0")
+                            </td>
+
+                            <td>
+                                @source.RecordsRejected.ToString("N0")
+                            </td>
+
+                            <td>
+                                @source.RecordsDuplicated.ToString("N0")
+                            </td>
+
+                            <td>
+                                <span class="dq-rate">
+                                    @source.RejectionRate.ToString("0.##")%
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="dq-rate">
+                                    @source.DuplicateRate.ToString("0.##")%
+                                </span>
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+</section>
+
+    <!-- Navigation -->
+
+    <section class="dq-footer-actions">
+
+        <a asp-controller="Admin"
+           asp-action="ImportHistory"
+           class="dq-secondary-button">
+            View Import History
+        </a>
+
+        <a asp-controller="Admin"
+           asp-action="DataImport"
+           class="dq-secondary-button">
+            Import Market Data
+        </a>
+
+    </section>
+
+</div>

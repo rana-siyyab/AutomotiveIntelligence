@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="AutomotiveIntelligence.Api/AutomotiveIntelligence.Api.csproj" />
+  <Project Path="AutomotiveIntelligence.Application/AutomotiveIntelligence.Application.csproj" />
+  <Project Path="AutomotiveIntelligence.Data/AutomotiveIntelligence.Data.csproj" />
+  <Project Path="AutomotiveIntelligence.Domain/AutomotiveIntelligence.Domain.csproj" />
+  <Project Path="AutomotiveIntelligence.Infrastructure/AutomotiveIntelligence.Infrastructure.csproj" />
+  <Project Path="AutomotiveIntelligence.Shared/AutomotiveIntelligence.Shared.csproj" />
+  <Project Path="AutomotiveIntelligence.Tests/AutomotiveIntelligence.Tests.csproj" />
+  <Project Path="AutomotiveIntelligence.Web/AutomotiveIntelligence.Web.csproj" />
+</Solution>

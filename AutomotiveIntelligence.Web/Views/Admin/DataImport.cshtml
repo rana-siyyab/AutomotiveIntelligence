@@ -1,0 +1,285 @@
+﻿@model AutomotiveIntelligence.Web.Models.Admin.MarketDataImportViewModel
+
+@{
+    ViewData["Title"] = "Data Import";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-data-import.css"
+      asp-append-version="true" />
+
+<div class="admin-import-page">
+
+    <div class="admin-import-hero">
+
+        <div>
+            <div class="admin-eyebrow">
+                DATA MANAGEMENT
+            </div>
+
+            <h1>Market Data Import</h1>
+
+            <p>
+                Upload structured market data into
+                Automotive Intelligence.
+            </p>
+        </div>
+
+        <div class="admin-import-icon">
+            ⇧
+        </div>
+
+    </div>
+
+    <div class="admin-import-content">
+
+        <div class="import-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>Upload Dataset</h2>
+
+                    <p>
+                    <p>
+                        Import vehicle, listing and market
+                        price observations from a CSV file.
+                    </p>
+                </div>
+
+            </div>
+
+            <form asp-action="DataImport"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="validation-summary">
+                </div>
+
+                <div class="form-group">
+
+                    <label asp-for="SourceId">
+                        Data Source
+                    </label>
+
+                  <select asp-for="SourceId"
+        class="form-control">
+
+    <option value="">
+        Select a data source
+    </option>
+
+    @foreach (var source in Model.DataSources)
+    {
+        <option value="@source.SourceId">
+            @source.Name (@source.SourceType)
+        </option>
+    }
+
+</select>
+
+                    <span class="field-help">
+                        The source associated with this dataset.
+                    </span>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label asp-for="File">
+                        CSV File
+                    </label>
+
+                    <div class="file-drop-area">
+
+                        <input asp-for="File"
+                               type="file"
+                               accept=".csv"
+                               class="file-input" />
+
+                        <div class="file-drop-content">
+
+                            <div class="upload-icon">
+                                ↑
+                            </div>
+
+                            <strong class="selected-file-name">
+                                Select a CSV file
+                            </strong>
+
+                            <span class="file-status">
+                                CSV files only
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <span asp-validation-for="File"
+                          class="field-error">
+                    </span>
+
+                </div>
+
+                <div class="import-format">
+
+                    <div class="format-title">
+                        Expected CSV structure
+                    </div>
+
+                    <code>
+                        Make, Model, Variant, Year, City,
+                        Mileage, Condition, ObservedPrice,
+                        ObservationDate
+                    </code>
+
+                </div>
+
+                <button type="submit"
+                        class="import-button">
+
+                    Import Market Data
+
+                </button>
+
+            </form>
+
+        </div>
+
+        @if (Model.Result != null)
+        {
+            <div class="result-card">
+
+                <div class="result-header">
+
+                    <div>
+                        <span class="result-label">
+                            IMPORT RESULT
+                        </span>
+
+                        <h2>
+                            @(Model.Result.Success
+                                ? "Import Completed"
+                                : "Import Completed With Errors")
+                        </h2>
+                    </div>
+
+                    <div class="result-status">
+                        @(Model.Result.Success
+                            ? "SUCCESS"
+                            : "CHECK DATA")
+                    </div>
+
+                </div>
+
+                <div class="result-grid">
+
+                    <div class="result-stat">
+                        <span>Total Rows</span>
+                        <strong>
+                            @Model.Result.TotalRows
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span>Successful</span>
+                        <strong>
+                            @Model.Result.SuccessfulRows
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span>Failed</span>
+                        <strong>
+                            @Model.Result.FailedRows
+                        </strong>
+                    </div>
+                    <div class="result-stat">
+    <span>Duplicates</span>
+
+    <strong>
+        @Model.Result.DuplicateRows
+    </strong>
+</div>
+                    <div class="result-stat">
+                        <span>Vehicles</span>
+                        <strong>
+                            @Model.Result.ImportedVehicles
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span>Listings</span>
+                        <strong>
+                            @Model.Result.ImportedListings
+                        </strong>
+                    </div>
+
+                    <div class="result-stat">
+                        <span>Market Prices</span>
+                        <strong>
+                            @Model.Result.ImportedMarketPrices
+                        </strong>
+                    </div>
+
+                </div>
+
+                <div class="import-id">
+                    Import ID:
+                    <strong>
+                        #@Model.Result.ImportId
+                    </strong>
+                </div>
+
+                @if (Model.Result.Errors.Any())
+                {
+                    <div class="error-list">
+
+                        <h3>
+                            Rejected Rows
+                        </h3>
+
+                        @foreach (var error
+                            in Model.Result.Errors)
+                        {
+                            <div class="error-row">
+
+    <div class="error-row-number">
+        Row @error.RowNumber
+    </div>
+
+    <div class="error-row-content">
+
+        <span class="error-type">
+            @error.ErrorType
+        </span>
+
+        <span>
+            @error.Error
+        </span>
+
+    </div>
+
+</div>
+                        }
+
+                    </div>
+                }
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="~/js/admin-data-import.js"
+            asp-append-version="true"></script>
+}

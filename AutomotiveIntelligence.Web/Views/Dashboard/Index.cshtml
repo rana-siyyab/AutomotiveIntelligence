@@ -1,0 +1,53 @@
+﻿<!-- Price Trends -->
+
+<section class="dashboard-card">
+
+    <div class="card-header">
+
+        <div>
+            <h2>Price Trends</h2>
+
+            <p>
+                Average observed market prices
+            </p>
+        </div>
+
+        <span class="card-badge">
+            30 Days
+        </span>
+
+    </div>
+
+    @if (Model.PriceTrends.Count == 0)
+    {
+        <div class="empty-state">
+            No price trend data available.
+        </div>
+    }
+    else
+    {
+        <div id="priceTrendData" class="chart-data">
+
+            @foreach (var trend in Model.PriceTrends)
+            {
+                <div class="price-trend-point"
+                     data-date="@trend.Date.ToString("yyyy-MM-dd")"
+                     data-price="@trend.AveragePrice">
+                </div>
+            }
+
+        </div>
+
+        <div class="chart-container">
+            <canvas id="priceTrendChart"></canvas>
+        </div>
+    }
+
+</section>
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+    <script src="~/js/dashboard.js"
+            asp-append-version="true"></script>
+}

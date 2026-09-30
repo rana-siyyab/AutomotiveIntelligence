@@ -1,0 +1,254 @@
+﻿@model AutomotiveIntelligence.Web.Models.DataSourcesViewModel
+
+@{
+    ViewData["Title"] = "Data Sources";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-data-sources.css"
+      asp-append-version="true" />
+
+<div class="data-sources-page">
+
+    <section class="ds-hero">
+
+        <div>
+            <div class="ds-eyebrow">
+                ADMINISTRATION
+            </div>
+
+            <h1>Data Sources</h1>
+
+            <p>
+                Manage the sources used to ingest automotive market
+                and intelligence data.
+            </p>
+        </div>
+
+        <div>
+            <a asp-controller="Admin"
+               asp-action="DataImport"
+               class="ds-secondary-button">
+                Import Market Data
+            </a>
+        </div>
+
+    </section>
+
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="ds-validation-summary">
+            @Html.ValidationSummary(
+                false,
+                "",
+                new { @class = "text-danger" })
+        </div>
+    }
+
+
+    <section class="ds-layout">
+
+        <!-- Existing Sources -->
+
+        <div class="ds-panel">
+
+            <div class="ds-panel-header">
+
+                <div>
+                    <div class="ds-panel-eyebrow">
+                        CONFIGURED SOURCES
+                    </div>
+
+                    <h2>Data Sources</h2>
+                </div>
+
+                <span class="ds-count">
+                    @Model.Sources.Count
+                </span>
+
+            </div>
+
+
+            @if (Model.Sources.Count == 0)
+            {
+                <div class="ds-empty">
+                    No active data sources have been configured.
+                </div>
+            }
+            else
+            {
+                <div class="ds-source-list">
+
+                    @foreach (var source in Model.Sources)
+                    {
+                        <div class="ds-source-item">
+
+                            <div class="ds-source-icon">
+                                ◉
+                            </div>
+
+                            <div class="ds-source-info">
+
+                                <div class="ds-source-name">
+                                    @source.Name
+                                </div>
+
+                                <div class="ds-source-meta">
+                                    @source.SourceType
+
+                                    @if (!string.IsNullOrWhiteSpace(
+                                        source.BaseUrl))
+                                    {
+                                        <span> · </span>
+                                        <span>@source.BaseUrl</span>
+                                    }
+                                </div>
+
+                            </div>
+
+                            <div class="ds-source-status">
+                                @if (source.IsActive)
+                                {
+                                    <span class="ds-status active">
+                                        Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="ds-status inactive">
+                                        Inactive
+                                    </span>
+                                }
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+
+        <!-- Add Source -->
+
+        <div class="ds-panel ds-create-panel">
+
+            <div class="ds-panel-header">
+
+                <div>
+                    <div class="ds-panel-eyebrow">
+                        NEW SOURCE
+                    </div>
+
+                    <h2>Add Data Source</h2>
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Admin"
+                  asp-action="DataSources"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="ds-form-group">
+
+                    <label asp-for="Create.Name"></label>
+
+                    <input asp-for="Create.Name"
+                           class="ds-input"
+                           placeholder="e.g. PAMA"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Create.Name"
+                          class="ds-field-error">
+                    </span>
+
+                </div>
+
+
+                <div class="ds-form-group">
+
+                    <label asp-for="Create.SourceType"></label>
+
+                    <input asp-for="Create.SourceType"
+                           class="ds-input"
+                           placeholder="e.g. Official, CSV, Kaggle"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Create.SourceType"
+                          class="ds-field-error">
+                    </span>
+
+                </div>
+
+
+                <div class="ds-form-group">
+
+                    <label asp-for="Create.BaseUrl"></label>
+
+                    <input asp-for="Create.BaseUrl"
+                           class="ds-input"
+                           placeholder="https://example.com"
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Create.BaseUrl"
+                          class="ds-field-error">
+                    </span>
+
+                </div>
+
+
+                <div class="ds-checkbox-row">
+
+                    <input asp-for="Create.IsActive"
+                           class="ds-checkbox" />
+
+                    <label asp-for="Create.IsActive">
+                        Active source
+                    </label>
+
+                </div>
+
+
+                <button type="submit"
+                        class="ds-submit-button">
+                    Add Data Source
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <section class="ds-info-panel">
+
+        <div class="ds-info-icon">
+            i
+        </div>
+
+        <div>
+
+            <strong>About data sources</strong>
+
+            <p>
+                Data sources identify where imported automotive data
+                originates. They will later allow the platform to
+                distinguish between manual uploads, official sources,
+                used-car datasets and other ingestion channels.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,719 @@
+﻿@model AutomotiveIntelligence.Web.Models.ValuationRequestViewModel
+
+@{
+    ViewData["Title"] = "Vehicle Valuation";
+
+    var makes =
+        ViewBag.Makes as IReadOnlyList<AutomotiveIntelligence.Web.Models.MakeViewModel>
+        ?? [];
+
+    var countries =
+        ViewBag.Countries as IReadOnlyList<AutomotiveIntelligence.Web.Models.CountryViewModel>
+        ?? [];
+
+    var conditions =
+        ViewBag.Conditions as IReadOnlyList<AutomotiveIntelligence.Web.Models.VehicleConditionViewModel>
+        ?? [];
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/valuation.css"
+          asp-append-version="true" />
+}
+
+<div class="valuation-page">
+
+    <!-- Hero -->
+    <section class="valuation-hero">
+
+        <div class="valuation-hero-content">
+
+            <div class="eyebrow">
+                VEHICLE INTELLIGENCE
+            </div>
+
+            <h1>Know What Your Car Is Worth</h1>
+
+            <p>
+                Enter the details you know about the vehicle.
+                You can start with just the make and model and
+                add more information for a more precise valuation.
+            </p>
+
+        </div>
+
+        <div class="valuation-hero-badge">
+
+            <div class="hero-badge-icon">
+                ₨
+            </div>
+
+            <div>
+                <strong>Pakistan Market</strong>
+                <span>PKR valuation</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <div class="valuation-layout">
+
+        <!-- Main Form -->
+        <section class="valuation-card">
+
+            <div class="valuation-card-header">
+
+                <div>
+                    <h2>Vehicle Details</h2>
+
+                    <p>
+                        Provide as much information as you have.
+                    </p>
+                </div>
+
+                <div class="required-note">
+                    <span class="required">*</span>
+                    Required
+                </div>
+
+            </div>
+
+
+            <div class="valuation-guidance">
+
+                <div class="guidance-icon">
+                    i
+                </div>
+
+                <div>
+                    <strong>More information means better accuracy</strong>
+
+                    <p>
+                        Make and Model are enough for a quick estimate.
+                        Adding year, variant, mileage, city and condition
+                        helps narrow the market range and improve confidence.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <form asp-controller="Valuation"
+                  asp-action="Calculate"
+                  method="post"
+                  id="valuationForm">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="validation-summary"
+                     role="alert">
+                </div>
+
+
+                <!-- SECTION 1 -->
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">
+                            01
+                        </div>
+
+                        <div>
+                            <h3>Vehicle Identity</h3>
+                            <p>Tell us which vehicle you are valuing.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- Make -->
+                        <div class="form-field">
+
+                            <label for="MakeId">
+                                Make
+                                <span class="required">*</span>
+                            </label>
+
+                            <select id="MakeId"
+                                    name="MakeId"
+                                    class="valuation-select"
+                                    required>
+
+                                <option value="">
+                                    Select Make
+                                </option>
+
+                                @foreach (var make in makes)
+                                {
+                                    if (Model.MakeId == make.MakeId)
+                                    {
+                                        <option value="@make.MakeId"
+                                                selected>
+                                            @make.Name
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@make.MakeId">
+                                            @make.Name
+                                        </option>
+                                    }
+                                }
+
+                            </select>
+
+                            <span class="field-help">
+                                Required to begin the valuation.
+                            </span>
+
+                        </div>
+
+
+                        <!-- Model -->
+                        <div class="form-field">
+
+                            <label for="ModelId">
+                                Model
+                                <span class="required">*</span>
+                            </label>
+
+                            <select id="ModelId"
+                                    name="ModelId"
+                                    class="valuation-select"
+                                    data-selected-value="@(Model.ModelId > 0 ? Model.ModelId.ToString() : "")"
+                                    required
+                                    disabled>
+
+                                <option value="">
+                                    Select Model
+                                </option>
+
+                            </select>
+
+                            <span class="field-help">
+                                Select a make first.
+                            </span>
+
+                        </div>
+
+
+                        <!-- Variant -->
+                        <div class="form-field">
+
+                            <label for="VariantId">
+                                Variant
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <select id="VariantId"
+                                    name="VariantId"
+                                    class="valuation-select"
+                                    data-selected-value="@(Model.VariantId?.ToString() ?? "")"
+                                    disabled>
+
+                                <option value="">
+                                    Select Variant
+                                </option>
+
+                            </select>
+
+                            <span class="field-help">
+                                Helps identify the exact vehicle specification.
+                            </span>
+
+                        </div>
+
+
+                        <!-- Year -->
+                        <div class="form-field">
+
+                            <label for="ManufacturingYear">
+                                Manufacturing Year
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <input type="number"
+                                   id="ManufacturingYear"
+                                   name="ManufacturingYear"
+                                   class="valuation-input"
+                                   value="@(Model.ManufacturingYear?.ToString() ?? "")"
+                                   min="1950"
+                                   max="@DateTime.Now.Year"
+                                   placeholder="e.g. 2022" />
+
+                            <span class="field-help">
+                                Newer and older vehicles can be compared.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SECTION 2 -->
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">
+                            02
+                        </div>
+
+                        <div>
+                            <h3>Location</h3>
+                            <p>Market prices can vary between cities.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid form-grid-three">
+
+                        <!-- Country -->
+                        <div class="form-field">
+
+                            <label for="CountryId">
+                                Country
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <select id="CountryId"
+                                    name="CountryId"
+                                    class="valuation-select">
+
+                                <option value="">
+                                    Select Country
+                                </option>
+
+                                @foreach (var country in countries)
+                                {
+                                    if (Model.CountryId == country.CountryId)
+                                    {
+                                        <option value="@country.CountryId"
+                                                selected>
+                                            @country.Name
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@country.CountryId">
+                                            @country.Name
+                                        </option>
+                                    }
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Province -->
+                        <div class="form-field">
+
+                            <label for="ProvinceId">
+                                Province
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <select id="ProvinceId"
+                                    name="ProvinceId"
+                                    class="valuation-select"
+                                    data-selected-value="@(Model.ProvinceId?.ToString() ?? "")"
+                                    disabled>
+
+                                <option value="">
+                                    Select Province
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- City -->
+                        <div class="form-field">
+
+                            <label for="CityId">
+                                City
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <select id="CityId"
+                                    name="CityId"
+                                    class="valuation-select"
+                                    data-selected-value="@(Model.CityId?.ToString() ?? "")"
+                                    disabled>
+
+                                <option value="">
+                                    Select City
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SECTION 3 -->
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">
+                            03
+                        </div>
+
+                        <div>
+                            <h3>Vehicle Condition</h3>
+                            <p>Optional details that can influence market value.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- Mileage -->
+                        <div class="form-field">
+
+                            <label for="Mileage">
+                                Mileage
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <div class="input-with-unit">
+
+                                <input type="number"
+                                       id="Mileage"
+                                       name="Mileage"
+                                       class="valuation-input"
+                                       value="@(Model.Mileage?.ToString() ?? "")"
+                                       min="0"
+                                       placeholder="e.g. 45000" />
+
+                                <span>KM</span>
+
+                            </div>
+
+                            <span class="field-help">
+                                Enter the current odometer reading.
+                            </span>
+
+                        </div>
+
+
+                        <!-- Condition -->
+                        <div class="form-field">
+
+                            <label for="ConditionId">
+                                Condition
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <select id="ConditionId"
+                                    name="ConditionId"
+                                    class="valuation-select">
+
+                                <option value="">
+                                    Select Condition
+                                </option>
+
+                                @foreach (var condition in conditions)
+                                {
+                                    if (Model.ConditionId == condition.ConditionId)
+                                    {
+                                        <option value="@condition.ConditionId"
+                                                selected>
+                                            @condition.Name
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@condition.ConditionId">
+                                            @condition.Name
+                                        </option>
+                                    }
+                                }
+
+                            </select>
+
+                            <span class="field-help">
+                                Based on the overall physical condition.
+                            </span>
+
+                        </div>
+
+
+                        <!-- Accident -->
+                        <div class="form-field">
+
+                            <label for="HasAccidentHistory">
+                                Accident History
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <select id="HasAccidentHistory"
+                                    name="HasAccidentHistory"
+                                    class="valuation-select">
+
+                                <option value="">
+                                    Not Specified
+                                </option>
+
+                                @if (Model.HasAccidentHistory == false)
+                                {
+                                    <option value="false" selected>
+                                        No
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="false">
+                                        No
+                                    </option>
+                                }
+
+                                @if (Model.HasAccidentHistory == true)
+                                {
+                                    <option value="true" selected>
+                                        Yes
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="true">
+                                        Yes
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Owners -->
+                        <div class="form-field">
+
+                            <label for="OwnerCount">
+                                Number of Owners
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <input type="number"
+                                   id="OwnerCount"
+                                   name="OwnerCount"
+                                   class="valuation-input"
+                                   value="@(Model.OwnerCount?.ToString() ?? "")"
+                                   min="1"
+                                   max="20"
+                                   placeholder="e.g. 2" />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SECTION 4 -->
+                <div class="form-section">
+
+                    <div class="form-section-heading">
+
+                        <div class="section-number">
+                            04
+                        </div>
+
+                        <div>
+                            <h3>Seller Information</h3>
+                            <p>Optional information for deal assessment.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <!-- Asking Price -->
+                        <div class="form-field">
+
+                            <label for="AskingPrice">
+                                Asking Price
+                                <span class="optional">Optional</span>
+                            </label>
+
+                            <div class="input-with-unit">
+
+                                <input type="number"
+                                       id="AskingPrice"
+                                       name="AskingPrice"
+                                       class="valuation-input"
+                                       value="@(Model.AskingPrice?.ToString() ?? "")"
+                                       min="0"
+                                       step="1000"
+                                       placeholder="e.g. 7000000" />
+
+                                <span>PKR</span>
+
+                            </div>
+
+                            <span class="field-help">
+                                Add the seller's asking price to assess the deal.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Estimate Status -->
+                <div class="estimate-readiness">
+
+                    <div class="readiness-top">
+
+                        <div>
+                            <span class="readiness-label">
+                                ESTIMATE READINESS
+                            </span>
+
+                            <strong id="estimateReadiness">
+                                Select Make and Model to begin
+                            </strong>
+                        </div>
+
+                        <span id="estimateLevel"
+                              class="readiness-badge">
+                            Waiting
+                        </span>
+
+                    </div>
+
+                    <div class="readiness-meter">
+                        <span id="readinessProgress"></span>
+                    </div>
+
+                    <p id="readinessMessage">
+                        You can start with only the required vehicle identity.
+                    </p>
+
+                </div>
+
+
+                <!-- Submit -->
+                <div class="valuation-submit">
+
+                    <a asp-controller="Dashboard"
+                       asp-action="Index"
+                       class="btn-secondary-custom">
+                        Cancel
+                    </a>
+
+                    <button type="submit"
+                            class="btn-primary-custom"
+                            id="calculateButton">
+
+                        <span>Calculate Valuation</span>
+
+                        <span class="button-arrow">
+                            →
+                        </span>
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- Side Information -->
+        <aside class="valuation-sidebar">
+
+            <div class="valuation-side-card">
+
+                <div class="side-card-icon">
+                    01
+                </div>
+
+                <h3>Start Simple</h3>
+
+                <p>
+                    You only need the make and model to request
+                    a quick market estimate.
+                </p>
+
+            </div>
+
+
+            <div class="valuation-side-card">
+
+                <div class="side-card-icon">
+                    02
+                </div>
+
+                <h3>Add Details</h3>
+
+                <p>
+                    Year, variant, mileage, location and condition
+                    help make the estimate more specific.
+                </p>
+
+            </div>
+
+
+            <div class="valuation-side-card">
+
+                <div class="side-card-icon">
+                    03
+                </div>
+
+                <h3>Understand the Result</h3>
+
+                <p>
+                    Your valuation includes a market range,
+                    confidence level and contributing factors.
+                </p>
+
+            </div>
+
+
+            <div class="valuation-sidebar-note">
+
+                <strong>Powered by Automotive Intelligence</strong>
+
+                <span>
+                    Current valuation engine:
+                    Rule-Based Market Analysis
+                </span>
+
+            </div>
+
+        </aside>
+
+    </div>
+
+</div>
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="~/js/valuation.js"
+            asp-append-version="true"></script>
+}

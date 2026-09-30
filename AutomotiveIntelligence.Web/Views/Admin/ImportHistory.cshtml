@@ -1,0 +1,223 @@
+﻿@model AutomotiveIntelligence.Web.Models.Admin.DataImportHistoryViewModel
+
+@{
+    ViewData["Title"] = "Import History";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin-import-history.css"
+      asp-append-version="true" />
+
+<div class="import-history-page">
+
+    <div class="history-hero">
+
+        <div>
+            <div class="history-eyebrow">
+                DATA MANAGEMENT
+            </div>
+
+            <h1>Import History</h1>
+
+            <p>
+                Track datasets imported into
+                Automotive Intelligence.
+            </p>
+        </div>
+
+        <a asp-controller="Admin"
+           asp-action="DataImport"
+           class="new-import-button">
+            + New Import
+        </a>
+
+    </div>
+
+    <div class="history-card">
+
+        <div class="history-card-header">
+
+            <div>
+                <h2>Recent Imports</h2>
+
+                <p>
+                    A record of data ingestion activity.
+                </p>
+            </div>
+
+            <div class="record-count">
+                @Model.Imports.Count records
+            </div>
+
+        </div>
+
+        @if (!Model.Imports.Any())
+        {
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    ⇅
+                </div>
+
+                <h3>No imports yet</h3>
+
+                <p>
+                    Imported datasets will appear here.
+                </p>
+
+                <a asp-controller="Admin"
+                   asp-action="DataImport"
+                   class="new-import-button">
+                    Import Dataset
+                </a>
+
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+
+                <table class="imports-table">
+
+                    <thead>
+                        <tr>
+
+                            <th>Import</th>
+
+                            <th>Source</th>
+
+                            <th>File</th>
+
+                            <th>Records</th>
+
+                            <th>Inserted</th>
+
+                            <th>Rejected</th>
+
+                            <th>Duplicated</th>
+
+                            <th>Status</th>
+
+                            <th>Date</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var import
+                            in Model.Imports)
+                        {
+                            <tr>
+
+                                <td>
+                                    <span class="import-number">
+                                        #@import.ImportId
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    <div class="source-name">
+                                        @import.SourceName
+                                    </div>
+
+                                    <div class="source-type">
+                                        @import.SourceType
+                                    </div>
+
+                                </td>
+
+                                <td>
+
+                                    <span class="file-name"
+                                          title="@import.FileName">
+                                        @(import.FileName
+                                            ?? "—")
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    @import.RecordsProcessed
+                                </td>
+
+                                <td>
+                                    <span class="inserted-count">
+                                        @import.RecordsInserted
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @if (import.RecordsRejected > 0)
+                                    {
+                                        <span class="rejected-count">
+                                            @import.RecordsRejected
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-rejected">
+                                            0
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+    @if (import.RecordsDuplicated > 0)
+    {
+        <span class="duplicate-count">
+            @import.RecordsDuplicated
+        </span>
+    }
+    else
+    {
+        <span class="no-duplicates">
+            0
+        </span>
+    }
+</td>
+                                <td>
+
+                                    @{
+                                        var status =
+                                            import.ImportStatus
+                                            ?? "Unknown";
+
+                                        var statusClass =
+                                            status.ToLowerInvariant()
+                                                .Replace(
+                                                    " ",
+                                                    "-");
+                                    }
+
+                                    <span class="status-badge @statusClass">
+                                        @status
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <div class="date-primary">
+    @(import.StartedDate.ToLocalTime().ToString("dd MMM yyyy"))
+</div>
+
+<div class="date-secondary">
+    @(import.StartedDate.ToLocalTime().ToString("HH:mm"))
+</div>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+
+    </div>
+
+</div>

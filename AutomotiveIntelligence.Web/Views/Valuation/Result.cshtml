@@ -1,0 +1,541 @@
+﻿@model AutomotiveIntelligence.Web.Models.ValuationResultViewModel
+
+@{
+    ViewData["Title"] = "Valuation Result";
+
+    var isQuickEstimate =
+        Model.ValuationId == 0;
+
+    var confidenceClass =
+        Model.ConfidenceScore >= 80
+            ? "confidence-high"
+            : Model.ConfidenceScore >= 60
+                ? "confidence-medium"
+                : "confidence-low";
+
+    var assessmentClass =
+        Model.DealAssessment.Contains(
+            "Good Deal",
+            StringComparison.OrdinalIgnoreCase)
+            ? "assessment-positive"
+            : Model.DealAssessment.Contains(
+                "Above",
+                StringComparison.OrdinalIgnoreCase)
+                ? "assessment-warning"
+                : "assessment-neutral";
+
+    var valuationMethod =
+        Model.ValuationMethod == "RuleBased"
+            ? "Rule-Based Market Analysis"
+            : Model.ValuationMethod;
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/valuation-result.css"
+          asp-append-version="true" />
+}
+
+<div class="valuation-result-page">
+
+    <!-- Result Header -->
+    <section class="result-hero">
+
+        <div class="result-hero-content">
+
+            <div class="eyebrow">
+                VEHICLE VALUATION
+            </div>
+
+            <h1>Your Vehicle Valuation</h1>
+
+            <p>
+                Based on the available Pakistan automotive market data
+                and the vehicle information you provided.
+            </p>
+
+        </div>
+
+        <div class="result-type-badge">
+
+            <span class="result-type-dot"></span>
+
+            @(isQuickEstimate
+                ? "Quick Estimate"
+                : "Saved Valuation")
+
+        </div>
+
+    </section>
+
+
+    <!-- Main Value -->
+    <section class="primary-result-card">
+
+        <div class="primary-result-left">
+
+            <span class="result-label">
+                ESTIMATED MARKET VALUE
+            </span>
+
+            <div class="estimated-price">
+                @Model.EstimatedPrice.ToString("N0")
+                <span>PKR</span>
+            </div>
+
+            <p class="estimated-description">
+                Estimated current market value based on available
+                comparable market observations.
+            </p>
+
+        </div>
+
+
+        <div class="primary-result-right">
+
+            <div class="confidence-header">
+
+                <span>
+                    VALUATION CONFIDENCE
+                </span>
+
+                <strong class="@confidenceClass">
+                    @Model.ConfidenceScore.ToString("0")%
+                </strong>
+
+            </div>
+
+            <div class="confidence-bar">
+
+                <span style="width:@Model.ConfidenceScore%"></span>
+
+            </div>
+
+            <p>
+                Confidence reflects the amount and completeness of
+                information available to the valuation engine.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Market Range -->
+    <section class="result-grid">
+
+        <div class="result-card market-range-card">
+
+            <div class="result-card-header">
+
+                <div>
+                    <span class="result-card-eyebrow">
+                        MARKET POSITION
+                    </span>
+
+                    <h2>Estimated Market Range</h2>
+                </div>
+
+                <div class="result-card-icon">
+                    ₨
+                </div>
+
+            </div>
+
+
+            <div class="range-values">
+
+                <div>
+                    <span>Minimum</span>
+
+                    <strong>
+                        @Model.MinimumPrice.ToString("N0")
+                    </strong>
+
+                    <small>PKR</small>
+                </div>
+
+
+                <div class="range-center">
+
+                    <span>Estimated</span>
+
+                    <strong>
+                        @Model.EstimatedPrice.ToString("N0")
+                    </strong>
+
+                    <small>PKR</small>
+
+                </div>
+
+
+                <div>
+                    <span>Maximum</span>
+
+                    <strong>
+                        @Model.MaximumPrice.ToString("N0")
+                    </strong>
+
+                    <small>PKR</small>
+                </div>
+
+            </div>
+
+
+            <div class="market-range-bar">
+
+                <span class="range-min"></span>
+                <span class="range-estimated"></span>
+                <span class="range-max"></span>
+
+            </div>
+
+
+            <div class="range-labels">
+
+                <span>
+                    @Model.MinimumPrice.ToString("N0")
+                </span>
+
+                <span>
+                    @Model.MaximumPrice.ToString("N0")
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Assessment -->
+        <div class="result-card assessment-card">
+
+            <div class="result-card-header">
+
+                <div>
+                    <span class="result-card-eyebrow">
+                        DEAL ANALYSIS
+                    </span>
+
+                    <h2>Assessment</h2>
+                </div>
+
+                <div class="result-card-icon">
+                    %
+                </div>
+
+            </div>
+
+
+            <div class="assessment-content @assessmentClass">
+
+                <div class="assessment-icon">
+
+                    @if (assessmentClass == "assessment-positive")
+                    {
+                        <span>✓</span>
+                    }
+                    else if (assessmentClass == "assessment-warning")
+                    {
+                        <span>!</span>
+                    }
+                    else
+                    {
+                        <span>i</span>
+                    }
+
+                </div>
+
+
+                <div>
+
+                    <span class="assessment-label">
+                        CURRENT ASSESSMENT
+                    </span>
+
+                    <strong>
+                        @Model.DealAssessment
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            @if (Model.DealAssessment == "No Asking Price Provided")
+            {
+                <p class="assessment-note">
+                    Add the seller's asking price to determine whether
+                    the vehicle is within, below, or above its estimated
+                    market range.
+                </p>
+            }
+            else
+            {
+                <p class="assessment-note">
+                    The assessment compares the asking price you provided
+                    with the estimated market range.
+                </p>
+            }
+
+        </div>
+
+    </section>
+
+
+    <!-- Recommendations -->
+    @if (Model.RecommendedBuyingPrice.HasValue ||
+         Model.RecommendedNegotiationPrice.HasValue)
+    {
+        <section class="result-card recommendations-card">
+
+            <div class="result-card-header">
+
+                <div>
+
+                    <span class="result-card-eyebrow">
+                        BUYING GUIDANCE
+                    </span>
+
+                    <h2>Recommended Price Points</h2>
+
+                    <p>
+                        Suggested price levels calculated from the
+                        estimated market value.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="recommendation-grid">
+
+                @if (Model.RecommendedBuyingPrice.HasValue)
+                {
+                    <div class="recommendation-item">
+
+                        <span>
+                            RECOMMENDED BUYING PRICE
+                        </span>
+
+                        <strong>
+                            @Model.RecommendedBuyingPrice.Value.ToString("N0")
+                            <small>PKR</small>
+                        </strong>
+
+                        <p>
+                            A suggested target price based on the
+                            estimated market value.
+                        </p>
+
+                    </div>
+                }
+
+
+                @if (Model.RecommendedNegotiationPrice.HasValue)
+                {
+                    <div class="recommendation-item negotiation">
+
+                        <span>
+                            NEGOTIATION TARGET
+                        </span>
+
+                        <strong>
+                            @Model.RecommendedNegotiationPrice.Value.ToString("N0")
+                            <small>PKR</small>
+                        </strong>
+
+                        <p>
+                            A lower negotiation reference point for
+                            discussions with the seller.
+                        </p>
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+    }
+
+
+    <!-- Valuation Factors -->
+    <section class="result-card factors-card">
+
+        <div class="result-card-header">
+
+            <div>
+
+                <span class="result-card-eyebrow">
+                    VALUATION ANALYSIS
+                </span>
+
+                <h2>Factors Behind the Estimate</h2>
+
+                <p>
+                    These factors show how the valuation engine adjusted
+                    the market baseline.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        @if (Model.Factors.Count == 0)
+        {
+            <div class="no-factors">
+
+                <div class="no-factors-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        No additional adjustments were applied
+                    </strong>
+
+                    <p>
+                        This estimate was calculated from the available
+                        market baseline without additional vehicle-specific
+                        adjustments.
+                    </p>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <div class="factors-list">
+
+                @foreach (var factor in Model.Factors)
+                {
+                    var adjustmentClass =
+                        factor.AdjustmentValue > 0
+                            ? "factor-positive"
+                            : factor.AdjustmentValue < 0
+                                ? "factor-negative"
+                                : "factor-neutral";
+
+                    <div class="factor-row">
+
+                        <div class="factor-main">
+
+                            <div class="factor-icon @adjustmentClass">
+
+                                @if (factor.AdjustmentValue > 0)
+                                {
+                                    <span>+</span>
+                                }
+                                else if (factor.AdjustmentValue < 0)
+                                {
+                                    <span>−</span>
+                                }
+                                else
+                                {
+                                    <span>•</span>
+                                }
+
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    @factor.FactorName
+                                </strong>
+
+                                @if (!string.IsNullOrWhiteSpace(
+                                    factor.Description))
+                                {
+                                    <p>
+                                        @factor.Description
+                                    </p>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="factor-adjustment @adjustmentClass">
+
+                            @if (factor.AdjustmentValue > 0)
+                            {
+                                <span>+</span>
+                            }
+
+                            @factor.AdjustmentValue.ToString("N0")
+                            PKR
+
+                            @if (factor.AdjustmentPercentage.HasValue)
+                            {
+                                <small>
+                                    (@factor.AdjustmentPercentage.Value.ToString("0.##")%)
+                                </small>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+
+    </section>
+
+
+    <!-- Methodology -->
+    <section class="result-methodology">
+
+        <div class="methodology-icon">
+            AI
+        </div>
+
+        <div class="methodology-content">
+
+            <span>
+                VALUATION METHOD
+            </span>
+
+            <strong>
+                @valuationMethod
+            </strong>
+
+            <p>
+                This valuation is generated using the current Automotive
+                Intelligence valuation engine and available market data.
+                Future versions can incorporate additional market sources
+                and machine-learning models.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Actions -->
+    <div class="result-actions">
+
+        <a asp-controller="Valuation"
+           asp-action="Index"
+           class="btn-secondary-custom">
+
+            ← Calculate Another Vehicle
+
+        </a>
+
+        <a asp-controller="Dashboard"
+           asp-action="Index"
+           class="btn-primary-custom">
+
+            Return to Dashboard
+            <span>→</span>
+
+        </a>
+
+    </div>
+
+</div>

@@ -1,0 +1,399 @@
+﻿@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+
+    bool IsActive(
+        string controller,
+        string? action = null)
+    {
+        if (!string.Equals(
+                currentController,
+                controller,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(action))
+        {
+            return true;
+        }
+
+        return string.Equals(
+            currentAction,
+            action,
+            StringComparison.OrdinalIgnoreCase);
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - Automotive Intelligence
+    </title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    @await RenderSectionAsync(
+        "Styles",
+        required: false)
+
+</head>
+
+<body>
+
+    <div class="app-shell">
+
+        <!-- =================================================
+             SIDEBAR
+             ================================================= -->
+
+        <aside class="app-sidebar">
+
+            <!-- Brand -->
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    AI
+                </div>
+
+                <div>
+
+                    <div class="brand-title">
+                        Automotive
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Intelligence
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Navigation -->
+
+            <nav class="sidebar-nav">
+
+                <!-- MAIN -->
+
+                <div class="nav-section-title">
+                    MAIN
+                </div>
+
+
+                <a class="nav-item @(IsActive("Dashboard", "Index") ? "active" : "")"
+                   asp-controller="Dashboard"
+                   asp-action="Index">
+
+                    <span class="nav-icon">
+                        ▦
+                    </span>
+
+                    <span>
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a class="nav-item @(IsActive("Valuation", "Index") ? "active" : "")"
+                   asp-controller="Valuation"
+                   asp-action="Index">
+
+                    <span class="nav-icon">
+                        ₨
+                    </span>
+
+                    <span>
+                        Vehicle Valuation
+                    </span>
+
+                </a>
+
+
+                <!-- INTELLIGENCE -->
+
+                <div class="nav-section-title">
+                    INTELLIGENCE
+                </div>
+
+
+                <a class="nav-item @(IsActive("MarketIntelligence", "Index") ? "active" : "")"
+                   asp-controller="MarketIntelligence"
+                   asp-action="Index">
+
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Market Intelligence
+                    </span>
+
+                </a>
+
+
+                <!-- ADMINISTRATION -->
+
+                <div class="nav-section-title">
+                    ADMINISTRATION
+                </div>
+
+
+                <a class="nav-item @(IsActive("Admin", "Dashboard") ? "active" : "")"
+                   asp-controller="Admin"
+                   asp-action="Dashboard">
+
+                    <span class="nav-icon">
+                        ▦
+                    </span>
+
+                    <span>
+                        Admin Dashboard
+                    </span>
+
+                </a>
+
+
+                <a class="nav-item @(IsActive("Admin", "DataImport") ? "active" : "")"
+                   asp-controller="Admin"
+                   asp-action="DataImport">
+
+                    <span class="nav-icon">
+                        ⇧
+                    </span>
+
+                    <span>
+                        Data Import
+                    </span>
+
+                </a>
+
+
+                <a class="nav-item @(IsActive("Admin", "ImportHistory") ? "active" : "")"
+                   asp-controller="Admin"
+                   asp-action="ImportHistory">
+
+                    <span class="nav-icon">
+                        ↔
+                    </span>
+
+                    <span>
+                        Import History
+                    </span>
+
+                </a>
+
+
+                <a class="nav-item @(IsActive("Admin", "DataQuality") ? "active" : "")"
+                   asp-controller="Admin"
+                   asp-action="DataQuality">
+
+                    <span class="nav-icon">
+                        ◈
+                    </span>
+
+                    <span>
+                        Data Quality
+                    </span>
+
+                </a>
+
+
+                <a class="nav-item @(IsActive("Admin", "DataSources") ? "active" : "")"
+                   asp-controller="Admin"
+                   asp-action="DataSources">
+
+                    <span class="nav-icon">
+                        ◉
+                    </span>
+
+                    <span>
+                        Data Sources
+                    </span>
+
+                </a>
+
+
+                <!-- FUTURE FEATURES -->
+
+                <div class="nav-section-title">
+                    INSIGHTS
+                </div>
+
+
+                <div class="nav-item nav-item-disabled">
+
+                    <span class="nav-icon">
+                        ⇄
+                    </span>
+
+                    <span>
+                        Vehicle Comparison
+                    </span>
+
+                    <span class="nav-coming-soon">
+                        Soon
+                    </span>
+
+                </div>
+
+
+                <div class="nav-item nav-item-disabled">
+
+                    <span class="nav-icon">
+                        ↗
+                    </span>
+
+                    <span>
+                        Price Trends
+                    </span>
+
+                    <span class="nav-coming-soon">
+                        Soon
+                    </span>
+
+                </div>
+
+
+                <!-- SYSTEM -->
+
+                <div class="nav-section-title">
+                    SYSTEM
+                </div>
+
+
+                <div class="nav-item nav-item-disabled">
+
+                    <span class="nav-icon">
+                        ⚙
+                    </span>
+
+                    <span>
+                        Settings
+                    </span>
+
+                    <span class="nav-coming-soon">
+                        Soon
+                    </span>
+
+                </div>
+
+            </nav>
+
+
+            <!-- Sidebar Footer -->
+
+            <div class="sidebar-footer">
+
+                <div class="system-status">
+
+                    <span class="status-dot"></span>
+
+                    <span>
+                        System Online
+                    </span>
+
+                </div>
+
+                <div class="sidebar-version">
+                    Automotive Intelligence v1.0
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =================================================
+             MAIN
+             ================================================= -->
+
+        <main class="app-main">
+
+            <!-- Topbar -->
+
+            <header class="topbar">
+
+                <div>
+
+                    <div class="topbar-title">
+                        @ViewData["Title"]
+                    </div>
+
+                    <div class="topbar-subtitle">
+                        Pakistan Automotive Market
+                    </div>
+
+                </div>
+
+
+                <div class="topbar-actions">
+
+                    <div class="environment-badge">
+                        Development
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <!-- Page -->
+
+            <div class="page-content">
+
+                @RenderBody()
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <footer class="app-footer">
+
+                <span>
+                    © @DateTime.Now.Year Automotive Intelligence
+                </span>
+
+                <span>
+                    Pakistan Automotive Market Intelligence
+                </span>
+
+            </footer>
+
+        </main>
+
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync(
+        "Scripts",
+        required: false)
+
+</body>
+
+</html>
