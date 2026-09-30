@@ -175,8 +175,6 @@ and applies factors including:
 It produces a market range and confidence score. When an asking price is
 supplied, it also provides a rule-based deal assessment.
 
-The current system should be described as **rule-based**, not as an ML
-valuation system.
 
 ## API Surface
 
