@@ -272,6 +272,23 @@ must be verified before commercial deployment.
 -   The current dataset should not be presented as a complete
     representation of the Pakistan automotive market.
 
+## AI Assistance Disclosure
+
+This project was developed with the assistance of AI tools, and I want to be transparent about how they were used.
+
+**Tool used:** ChatGPT
+
+**Where AI assisted**
+
+- **Documentation:** Helped draft and structure `README.md`, `ARCHITECTURE.md` and `PROJECT-OVERVIEW.md`. I reviewed and edited them to reflect the actual implementation.
+- **Rule-based valuation:** Helped design and implement parts of the valuation logic, including the market baseline, mileage and condition adjustments, accident and ownership adjustments, and confidence scoring. I reviewed, tested and adjusted both the implementation and its results.
+- **Development support:** Provided suggestions, troubleshooting, code review and refinement for selected areas of the codebase.
+- **Learning:** Served as a learning aid for concepts and patterns used in the project, such as layered architecture, EF Core, data-quality processing and normalization.
+
+**My responsibility**
+
+The project idea, scope, data sourcing and overall direction are my own. I made the implementation decisions, and I am responsible for the final integration, testing and validation of the application.
+
 ## Future Roadmap
 
 ``` text
