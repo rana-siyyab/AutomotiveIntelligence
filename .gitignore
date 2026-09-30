@@ -361,3 +361,55 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# ============================================================
+# Automotive Intelligence - Portfolio Repository
+# ============================================================
+
+# Local configuration / secrets
+appsettings.Local.json
+appsettings.Development.Local.json
+*.local.json
+.env
+.env.*
+!.env.example
+
+# Local databases / database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Raw datasets
+/data/
+/Data/
+/DataSets/
+/datasets/
+/RawData/
+/RawDataFiles/
+
+# CSV / Excel data imports
+# Uncomment these if these files are used only for local datasets/imports
+# *.csv
+# *.xlsx
+# *.xls
+
+# Generated/imported automotive market data
+**/ImportedData/
+**/ImportData/
+**/GeneratedData/
+**/ProcessedData/
+
+# Local data exports
+**/exports/
+**/Exports/
+
+# Machine learning / data science artifacts
+**/models/
+**/ModelArtifacts/
+**/checkpoints/
+*.pkl
+*.joblib
+
+# Local temporary files
+*.tmp
+*.bak
+*.backup
